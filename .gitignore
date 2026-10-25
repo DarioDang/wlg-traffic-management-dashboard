@@ -11,3 +11,4 @@ wlg-traffic/
 __pycache__/
 .ipynb_checkpoints/
 .DS_Store
+*.html

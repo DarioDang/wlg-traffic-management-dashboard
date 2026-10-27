@@ -86,7 +86,7 @@ def get_events(include_gone=False):
 
 # ---------- endpoints ----------
 
-@app.get("/ping")
+@app.api_route("/ping", methods=["GET", "HEAD"])
 def ping():
     """No DB access on purpose, so uptime monitoring never wakes Neon."""
     return {"status": "ok"}

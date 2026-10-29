@@ -12,3 +12,7 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 *.html
+
+node_modules/
+dist/
+!frontend/public/index.html

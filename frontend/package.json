@@ -1,0 +1,23 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "esbuild src/main.js --bundle --outfile=public/app.js --loader:.png=dataurl --loader:.woff2=file --loader:.woff=file --asset-names=fonts/[name]-[hash] --servedir=public --serve=3000 --sourcemap",
+    "build": "esbuild src/main.js --bundle --minify --outfile=dist/app.js --loader:.png=dataurl --loader:.woff2=file --loader:.woff=file --asset-names=fonts/[name]-[hash] && cp public/index.html dist/index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@fontsource/barlow": "^5.3.0",
+    "@fontsource/barlow-condensed": "^5.3.0",
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

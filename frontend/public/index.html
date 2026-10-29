@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wellington Roadworks Live</title>
+  <meta name="description" content="Live state highway closures and roadworks across the Wellington region, built on the NZTA Traffic and Travel API.">
+  <script>
+    // Runs before first paint so the page never flashes the wrong theme.
+    (function () {
+      var t = "light";
+      try { t = localStorage.getItem("wlg-theme") || ""; } catch (e) {}
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="stylesheet" href="app.css">
+  <style>
+    /* Inline so the stripe and the loading shell are right before app.css arrives. */
+    body { margin: 0; background: #eceef0; }
+    html[data-theme="dark"] body { background: #171c21; }
+    #banner[hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <div class="stripe" aria-hidden="true"><div class="stripe-fill" id="stripe-fill"></div></div>
+
+  <header class="wrap topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+        <rect width="40" height="40" rx="9" fill="currentColor"/>
+        <path d="M8 27l8-8-8-8M17 27l8-8-8-8M26 27l8-8-8-8" fill="none" stroke="var(--hazard)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <h1>Wellington Roadworks</h1>
+        <p>Closures and works on state highways, updated through the day</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="live" id="live" data-state="loading" role="status" aria-live="polite">
+        <span class="live-dot"></span>
+        <span class="live-label" id="live-label">Connecting</span>
+        <span class="live-sub" id="live-sub"></span>
+      </div>
+      <button type="button" class="icon-btn" id="refresh" aria-label="Refresh data" title="Refresh data">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5V6.2h-2.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="icon-btn" id="theme" aria-label="Dark mode" aria-pressed="false" title="Toggle dark mode">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.5 11.6A6.6 6.6 0 0 1 8.4 3.5a6.6 6.6 0 1 0 8.1 8.1z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="banner" id="banner" role="alert" hidden></div>
+  </div>
+
+  <main class="wrap">
+    <section class="filters" aria-label="Filters">
+      <div class="seg" id="seg-status" role="group" aria-label="Status"></div>
+      <div class="chips" id="chips" role="group" aria-label="Event type"></div>
+    </section>
+
+    <section class="grid">
+      <div class="card map-card">
+        <div id="map" aria-label="Map of roadworks in the Wellington region"></div>
+        <button type="button" class="map-btn" id="refit">Fit all events</button>
+      </div>
+
+      <aside class="side">
+        <section class="vms" aria-label="Summary">
+          <div class="vms-figure">
+            <span class="vms-num" id="hero-num" data-v="0">0</span>
+            <span class="vms-unit" id="hero-unit">events</span>
+          </div>
+          <p class="vms-sub" id="hero-sub">Loading the latest feed</p>
+          <div class="kpis">
+            <div class="kpi"><span class="kpi-val" id="kpi-closures" data-v="0">0</span><span class="kpi-label">Road closures</span></div>
+            <div class="kpi"><span class="kpi-val" id="kpi-stopgo" data-v="0">0</span><span class="kpi-label">Stop/go sites</span></div>
+            <div class="kpi kpi-wide"><span class="kpi-val" id="kpi-longest">None</span><span class="kpi-label">Longest running</span><span class="kpi-note" id="kpi-longest-note"></span></div>
+          </div>
+        </section>
+
+        <section class="card list-card" aria-label="Events">
+          <div class="card-head">
+            <h2>Events</h2>
+            <div class="head-right">
+              <button type="button" class="link-btn" id="clear-filters" hidden>Clear filters</button>
+              <span class="muted" id="list-count"></span>
+            </div>
+          </div>
+          <ul class="event-list" id="event-list">
+            <li class="skeleton"></li><li class="skeleton"></li><li class="skeleton"></li><li class="skeleton"></li><li class="skeleton"></li>
+          </ul>
+        </section>
+      </aside>
+    </section>
+
+    <section class="card timeline-card" aria-label="Schedule">
+      <div class="card-head">
+        <div>
+          <h2>Schedule</h2>
+          <p class="card-sub">When each event started and when it is expected to end. Faded bars have no end date yet.</p>
+        </div>
+        <span class="muted" id="tl-count"></span>
+      </div>
+      <div class="tl-scroll" id="timeline"></div>
+    </section>
+
+    <section class="row2">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2>Events by highway</h2>
+            <p class="card-sub">Select a segment to filter everything to that type.</p>
+          </div>
+        </div>
+        <div class="hw-chart" id="hw-chart"></div>
+        <div class="legend" id="hw-legend"></div>
+        <details class="table-view">
+          <summary>View as table</summary>
+          <table>
+            <thead><tr><th scope="col">Highway</th><th scope="col">Closure</th><th scope="col">Stop/go</th><th scope="col">Lane</th><th scope="col">Speed</th><th scope="col">Other</th><th scope="col">Cleared</th><th scope="col">Total</th></tr></thead>
+            <tbody id="hw-table-body"></tbody>
+          </table>
+        </details>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2>Data pipeline</h2>
+            <p class="card-sub">How this page gets its data.</p>
+          </div>
+          <span class="pill" id="pipe-status"></span>
+        </div>
+        <dl class="facts" id="pipe-facts"></dl>
+      </div>
+    </section>
+    <section class="card pipeline" aria-label="Data pipeline architecture">
+      <h2 class="pipe-title">Data pipeline architecture</h2>
+      <ol class="pipe" id="pipe-flow"></ol>
+      <p class="pipe-note" id="pipe-note"></p>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <p>Event data comes from the NZ Transport Agency Waka Kotahi Traffic and Travel API. It covers state highways only, so council roads are not shown.</p>
+    <p><a href="https://github.com/DarioDang/wlg-traffic-management-dashboard" rel="noopener">Source code on GitHub</a></p>
+  </footer>
+
+  <noscript><p class="wrap">This dashboard needs JavaScript to draw the map.</p></noscript>
+  <script src="app.js"></script>
+</body>
+</html>

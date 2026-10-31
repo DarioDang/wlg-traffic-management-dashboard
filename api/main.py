@@ -2,6 +2,8 @@ import hmac
 import logging
 import threading
 import time
+import logging
+import re
 from collections import Counter
 from datetime import datetime, timezone
 
@@ -47,6 +49,36 @@ def query(sql, params=()):
     finally:
         conn.close()
 
+_CODE = r"[0-9A-Z]+-[0-9A-Z]+(?:-[0-9A-Z]+)?/[\d.]+(?:-[A-Z])?"
+_SECTION_PREFIX = re.compile(rf"^\s*{_CODE}\s*(?:-\s*{_CODE}\s*)?")
+
+
+def _route(p):
+    journey = p.get("journey") or {}
+    leg = p.get("journeyLeg") or {}
+    if not journey.get("name") and not leg.get("name"):
+        return None
+    return {
+        "journey": journey.get("name"),
+        "leg": leg.get("name"),
+        "leg_km": leg.get("totalLength"),
+    }
+
+
+def _sections(raw):
+    """locations is a string or a list: strip the road-reference codes, keep the words."""
+    if not raw:
+        return []
+    items = raw if isinstance(raw, list) else [raw]
+    out = []
+    for item in items:
+        if not isinstance(item, str):
+            continue
+        text = _SECTION_PREFIX.sub("", item).strip()
+        if text:
+            out.append(re.sub(r"\bTo\b", "to", text.title()))
+    return out[:3]
+
 def _load_events(include_gone):
     where = "" if include_gone else "where in_feed"
     rows = query(
@@ -72,6 +104,10 @@ def _load_events(include_gone):
             "end_date": p.get("endDate"),
             "expected_resolution": p.get("expectedResolution"),
             "alternative_route": p.get("alternativeRoute"),
+            "event_created": p.get("eventCreated"),
+            "event_modified": p.get("eventModified"),
+            "route": _route(p),
+            "sections": _sections(p.get("locations")),
             "geometry_type": kind,
             "coords": coords,
             "in_feed": r["in_feed"],

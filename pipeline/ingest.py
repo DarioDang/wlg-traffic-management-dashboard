@@ -7,6 +7,7 @@ from psycopg2.extras import Json
 
 from pipeline.db import get_conn
 from pipeline.fetch import fetch_events, wellington_only
+from pipeline.geo import wkt_to_latlon
 
 log = logging.getLogger("ingest")
 
@@ -18,8 +19,19 @@ HASH_FIELDS = [
 ]
 
 
+def _geometry_signature(wkt):
+    """NZTA alternates the same line between full-detail and simplified versions.
+    Compare only the kind and the rounded start and end points (about 1 m), so a
+    change in detail is ignored but a real move is still caught."""
+    kind, coords = wkt_to_latlon(wkt)
+    if not coords:
+        return None
+    return [kind, [round(v, 5) for v in coords[0]], [round(v, 5) for v in coords[-1]]]
+
+
 def content_hash(e: dict) -> str:
     subset = {k: e.get(k) for k in HASH_FIELDS}
+    subset["geometry"] = _geometry_signature(e.get("geometry"))
     subset["region"] = (e.get("region") or {}).get("name")
     return hashlib.sha256(
         json.dumps(subset, sort_keys=True, default=str).encode()

@@ -4,6 +4,7 @@ export const state = {
   events: [],
   stats: null,
   health: null,
+  changes: null,
   status: "all",          // all | active | scheduled | cleared
   types: new Set(),       // empty set = every type
   categories: new Set(),  // empty set = every category

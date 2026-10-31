@@ -6,7 +6,8 @@ import {
 } from "./labels.js";
 import { attachTip } from "./tooltip.js";
 import { sevBadge } from "./badges.js";
-import { STALE_AFTER_MIN, INGEST_EVERY } from "./config.js";
+import { STALE_AFTER_MIN, INGEST_EVERY, ACTIVITY_HOURS } from "./config.js";
+import { itemLines, kindOf } from "./activity.js";
 
 const DAY = 86400000;
 
@@ -368,6 +369,38 @@ export function renderTimeline(list, hd) {
 }
 
 // ---------- pipeline ----------
+
+// ---------- what changed ----------
+
+export function renderActivity(hd) {
+  const box = clear($("activity"));
+  const data = state.changes;
+  $("activity-count").textContent = data ? `Last ${ACTIVITY_HOURS} hours` : "";
+  if (!data) {
+    box.append(h("p", { class: "empty-note" }, "Change history is not available right now."));
+    return;
+  }
+  if (!data.items.length) {
+    box.append(h("p", { class: "empty-note" }, `No changes recorded in the last ${ACTIVITY_HOURS} hours.`));
+    return;
+  }
+  const known = new Set(state.events.map((e) => e.id));
+  for (const it of data.items) {
+    const ev = it.event || {};
+    const kind = kindOf(it);
+    const link = known.has(ev.id);
+    const props = { class: `act${link ? " is-link" : ""}` };
+    if (link) { props.type = "button"; props.onclick = () => hd.onSelect(ev.id); }
+    box.append(
+      h(link ? "button" : "div", props,
+        h("span", { class: `act-kind act-${kind.cls}` }, kind.label),
+        h("span", { class: "act-main" },
+          h("span", { class: "act-title" }, h("span", { class: "hw" }, highwayOf(ev)), h("span", {}, placeOf(ev))),
+          ...itemLines(it).map((l) => h("span", { class: "act-line" }, l))),
+        h("span", { class: "act-when" }, timeAgo(it.at)))
+    );
+  }
+}
 
 // ---------- routes affected ----------
 

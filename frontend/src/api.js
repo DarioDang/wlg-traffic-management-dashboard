@@ -16,3 +16,6 @@ async function getJSON(path, timeoutMs = 70000) {
 export const fetchEvents = () => getJSON("/api/events");
 export const fetchStats = () => getJSON("/api/stats");
 export const fetchHealth = () => getJSON("/api/health");
+
+export const fetchChanges = (hours) => getJSON(`/api/changes?hours=${hours}`);
+export const fetchHistory = (id) => getJSON(`/api/events/${id}/history`);

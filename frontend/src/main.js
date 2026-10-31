@@ -6,8 +6,8 @@ import "@fontsource/barlow-condensed/latin-600.css";
 import "@fontsource/barlow-condensed/latin-700.css";
 import "./styles.css";
 
-import { fetchEvents, fetchStats, fetchHealth } from "./api.js";
-import { REFRESH_MS } from "./config.js";
+import { fetchEvents, fetchStats, fetchHealth, fetchChanges } from "./api.js";
+import { REFRESH_MS, ACTIVITY_HOURS } from "./config.js";
 import { state, visible } from "./state.js";
 import { initMap, renderMap, setSelected, setHover, flyToEvent, refitMap, invalidateMap } from "./mapview.js";
 import { hideTip } from "./tooltip.js";
@@ -79,6 +79,7 @@ function renderAll({ fitMap = false } = {}) {
   ui.renderHighways(list, handlers);
   ui.renderTimeline(list, handlers);
   ui.renderRoutes(list, handlers);
+  ui.renderActivity(handlers);
   ui.renderPipeline();
   renderMap(list, { selectedId: state.selectedId, fit: fitMap });
   ui.setSelectedUI(state.selectedId);
@@ -94,10 +95,13 @@ async function load() {
   ui.setLive("loading", "Refreshing", "");
   const slow = setTimeout(() => ui.showBanner("Waking the data service. This can take up to a minute."), 4000);
   try {
-    const [ev, st, he] = await Promise.all([fetchEvents(), fetchStats(), fetchHealth().catch(() => null)]);
+      const [ev, st, he, ch] = await Promise.all([
+        fetchEvents(), fetchStats(), fetchHealth().catch(() => null), fetchChanges(ACTIVITY_HOURS).catch(() => null),
+      ]);
     state.events = ev.events;
     state.stats = st;
     state.health = he;
+    state.changes = ch;
     ui.showBanner("");
     renderAll({ fitMap: first });
     first = false;

@@ -18,3 +18,7 @@ export const STALE_AFTER_MIN = 90;
 export const INGEST_EVERY = "30 minutes";
 
 export const REPO_URL = "https://github.com/DarioDang/wlg-traffic-management-dashboard";
+
+
+// How far back the "What changed" panel looks.
+export const ACTIVITY_HOURS = 72;

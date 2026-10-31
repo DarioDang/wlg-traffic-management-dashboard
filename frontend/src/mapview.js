@@ -2,6 +2,8 @@ import L from "leaflet";
 import { TILE_URL, TILE_ATTRIBUTION, WELLINGTON } from "./config.js";
 import { h, svg } from "./dom.js";
 import { sevBadge } from "./badges.js";
+import { fetchHistory } from "./api.js";
+import { changeLine } from "./activity.js";
 import {
   typeInfo, typeKey, typeColor, highwayOf, placeOf, fmtDate, reducedMotion, timeAgo, causeOf,
 } from "./labels.js";
@@ -33,7 +35,32 @@ function pinElement(e) {
   );
 }
 
-function popupContent(e) {
+function historyBlock(e, onGrow) {
+  const wrap = h("div", { class: "pop-history" });
+  const btn = h("button", { type: "button", class: "link-btn" }, "Show change history");
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    btn.textContent = "Loading…";
+    try {
+      const data = await fetchHistory(e.id);
+      btn.remove();
+      const ul = h("ul", { class: "hist" });
+      for (const entry of data.history) {
+        const lines = entry.kind === "first_seen" ? ["First seen"] : entry.changes.map(changeLine);
+        ul.append(h("li", {}, h("strong", {}, timeAgo(entry.at)), ...lines.map((l) => h("span", {}, l))));
+      }
+      wrap.append(ul);
+    } catch {
+      btn.disabled = false;
+      btn.textContent = "Couldn't load history. Try again";
+    }
+    onGrow();
+  });
+  wrap.append(btn);
+  return wrap;
+}
+
+function popupContent(e, onGrow) {
   const key = typeKey(e.closure_type);
   const info = typeInfo(key);
   const box = h("div", { class: "pop", style: { "--tc": `var(--c-${key})` } });
@@ -60,6 +87,7 @@ function popupContent(e) {
     add("Detour", e.alternative_route.trim());
   }
   if (meta.children.length) box.append(meta);
+  box.append(historyBlock(e, onGrow));
   return box;
 }
 
@@ -119,7 +147,7 @@ export function renderMap(events, { selectedId = null, fit = false } = {}) {
       keyboard: true,
       title: `${highwayOf(e)} ${placeOf(e)}`,
     }).addTo(group);
-    marker.bindPopup(popupContent(e), { className: "rw-popup", maxWidth: 340, autoPan: false, closeButton: true, offset: [0, -10] });
+    marker.bindPopup(popupContent(e, () => marker.getPopup().update()), { className: "rw-popup", maxWidth: 340, autoPan: false, closeButton: true, offset: [0, -10] });
     marker.getPopup()._rwId = e.id;
     marker.on("click", () => handlers.onSelect(e.id));
     marker.on("mouseover", () => handlers.onHover(e.id));

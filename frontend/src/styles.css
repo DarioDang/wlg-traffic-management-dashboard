@@ -575,3 +575,40 @@ a { color: inherit; text-underline-offset: 3px; }
   }
   .pipeline .facts dd { text-align: right; font: 500 15px/1.45 var(--font); }
 }
+
+
+/* ---------- what changed and popup history ---------- */
+
+.activity-card { margin-bottom: 16px; }
+.activity { display: grid; gap: 6px; padding: 4px 18px 18px; max-height: 420px; overflow-y: auto; }
+.act {
+  display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; align-items: start; gap: 12px;
+  width: 100%; padding: 10px 12px; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+}
+button.act { cursor: pointer; transition: background 0.15s; }
+button.act:hover { background: var(--inset); }
+.act-kind {
+  justify-self: start; padding: 1px 10px; border-radius: 999px; font-size: 13px; font-weight: 600;
+  border: 1px solid var(--line-strong);
+}
+.act-new { background: color-mix(in srgb, var(--focus) 14%, var(--surface)); border-color: color-mix(in srgb, var(--focus) 55%, var(--line)); }
+.act-upd { background: color-mix(in srgb, var(--warn) 18%, var(--surface)); border-color: color-mix(in srgb, var(--warn) 60%, var(--line)); }
+.act-gone { background: color-mix(in srgb, var(--good) 12%, var(--surface)); border-color: color-mix(in srgb, var(--good) 45%, var(--line)); }
+.act-main { display: grid; gap: 3px; min-width: 0; }
+.act-title { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; font-weight: 500; }
+.act-line { color: var(--ink-2); font-size: 14px; overflow-wrap: anywhere; }
+.act-when { color: var(--muted); font-size: 14px; white-space: nowrap; }
+
+.pop-history { padding-top: 6px; }
+.hist { list-style: none; display: grid; gap: 8px; margin-top: 6px; }
+.hist li { display: grid; gap: 2px; padding-left: 10px; border-left: 2px solid var(--line-strong); }
+.hist strong { font-weight: 600; }
+.hist span { color: var(--ink-2); overflow-wrap: anywhere; }
+
+@media (max-width: 640px) {
+  .act { grid-template-columns: minmax(0, 1fr) auto; }
+  .act-kind { grid-column: 1; grid-row: 1; }
+  .act-when { grid-column: 2; grid-row: 1; }
+  .act-main { grid-column: 1 / -1; grid-row: 2; }
+}

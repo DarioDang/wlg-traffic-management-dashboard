@@ -61,6 +61,7 @@
     <section class="filters" aria-label="Filters">
       <div class="seg" id="seg-status" role="group" aria-label="Status"></div>
       <div class="chips" id="chips" role="group" aria-label="Event type"></div>
+      <div class="chips" id="cats" role="group" aria-label="Category"></div>
     </section>
 
     <section class="grid">
@@ -79,6 +80,7 @@
           <div class="kpis">
             <div class="kpi"><span class="kpi-val" id="kpi-closures" data-v="0">0</span><span class="kpi-label">Road closures</span></div>
             <div class="kpi"><span class="kpi-val" id="kpi-stopgo" data-v="0">0</span><span class="kpi-label">Stop/go sites</span></div>
+            <div class="kpi"><span class="kpi-val" id="kpi-open" data-v="0">0</span><span class="kpi-label">No end date</span></div>
             <div class="kpi kpi-wide"><span class="kpi-val" id="kpi-longest">None</span><span class="kpi-label">Longest running</span><span class="kpi-note" id="kpi-longest-note"></span></div>
           </div>
         </section>
@@ -109,26 +111,38 @@
       <div class="tl-scroll" id="timeline"></div>
     </section>
 
-    <section class="row2">
-      <div class="card">
-        <div class="card-head">
-          <div>
-            <h2>Events by highway</h2>
-            <p class="card-sub">Select a segment to filter everything to that type.</p>
+      <section class="row2">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h2>Events by highway</h2>
+              <p class="card-sub">Select a segment to filter everything to that type.</p>
+            </div>
           </div>
+          <div class="hw-chart" id="hw-chart"></div>
+          <div class="legend" id="hw-legend"></div>
+          <details class="table-view">
+            <summary>View as table</summary>
+            <table>
+              <thead><tr><th scope="col">Highway</th><th scope="col">Closure</th><th scope="col">Stop/go</th><th scope="col">Lane</th><th scope="col">Speed</th><th scope="col">Other</th><th scope="col">Cleared</th><th scope="col">Total</th></tr></thead>
+              <tbody id="hw-table-body"></tbody>
+            </table>
+          </details>
         </div>
-        <div class="hw-chart" id="hw-chart"></div>
-        <div class="legend" id="hw-legend"></div>
-        <details class="table-view">
-          <summary>View as table</summary>
-          <table>
-            <thead><tr><th scope="col">Highway</th><th scope="col">Closure</th><th scope="col">Stop/go</th><th scope="col">Lane</th><th scope="col">Speed</th><th scope="col">Other</th><th scope="col">Cleared</th><th scope="col">Total</th></tr></thead>
-            <tbody id="hw-table-body"></tbody>
-          </table>
-        </details>
-      </div>
 
-      <div class="card">
+        <div class="card routes-card" aria-label="Routes affected">
+          <div class="card-head">
+            <div>
+              <h2>Routes affected</h2>
+              <p class="card-sub">NZTA route legs with active or scheduled events in this view, worst impact first. Select a row to find it on the map.</p>
+            </div>
+            <span class="muted" id="routes-count"></span>
+          </div>
+          <div class="routes" id="routes"></div>
+        </div>
+      </section>
+
+      <section class="card pipeline" aria-label="Data pipeline">
         <div class="card-head">
           <div>
             <h2>Data pipeline</h2>
@@ -137,13 +151,9 @@
           <span class="pill" id="pipe-status"></span>
         </div>
         <dl class="facts" id="pipe-facts"></dl>
-      </div>
-    </section>
-    <section class="card pipeline" aria-label="Data pipeline architecture">
-      <h2 class="pipe-title">Data pipeline architecture</h2>
-      <ol class="pipe" id="pipe-flow"></ol>
-      <p class="pipe-note" id="pipe-note"></p>
-    </section>
+        <ol class="pipe" id="pipe-flow"></ol>
+        <p class="pipe-note" id="pipe-note"></p>
+      </section>
   </main>
 
   <footer class="wrap foot">

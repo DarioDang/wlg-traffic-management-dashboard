@@ -2,9 +2,10 @@ import { h, $, clear, ICONS } from "./dom.js";
 import { state, byStatus, filtersActive } from "./state.js";
 import {
   TYPE_ORDER, TYPES, typeKey, typeInfo, highwayOf, placeOf, fmtDate, fmtDay, parseWhen,
-  timeAgo, daysSince, fmtBytes, plural, reducedMotion,
+    timeAgo, daysSince, fmtBytes, plural, reducedMotion, causeOf, severityOf, CATEGORY_ORDER,
 } from "./labels.js";
 import { attachTip } from "./tooltip.js";
+import { sevBadge } from "./badges.js";
 import { STALE_AFTER_MIN, INGEST_EVERY } from "./config.js";
 
 const DAY = 86400000;
@@ -111,6 +112,27 @@ export function renderFilters(hd) {
       }, h("span", { class: `swatch shape-${TYPES[key].shape}` }), TYPES[key].label, h("span", { class: "count" }, String(n)))
     );
   }
+  const catCounts = {};
+  for (const e of byStatus()) catCounts[e.event_type] = (catCounts[e.event_type] || 0) + 1;
+  const seen = [...new Set(state.events.map((e) => e.event_type).filter(Boolean))];
+  seen.sort((a, b) => {
+    const ia = CATEGORY_ORDER.indexOf(a);
+    const ib = CATEGORY_ORDER.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+  });
+  const cats = clear($("cats"));
+  for (const cat of seen) {
+    const n = catCounts[cat] || 0;
+    const on = state.categories.has(cat);
+    cats.append(
+      h("button", {
+        type: "button",
+        class: `chip${n === 0 && !on ? " is-empty" : ""}`,
+        "aria-pressed": String(on),
+        onclick: () => hd.onCategory(cat),
+      }, cat, h("span", { class: "count" }, String(n)))
+    );
+  }
   $("clear-filters").hidden = !filtersActive();
 }
 
@@ -142,6 +164,8 @@ export function renderHero(list) {
   const of = (t) => list.filter((e) => typeKey(e.closure_type) === t).length;
   countUp($("kpi-closures"), of("road_closure"));
   countUp($("kpi-stopgo"), of("stop_go"));
+  const openEnded = list.filter((e) => e.status !== "Resolved" && !parseWhen(e.end_date)).length;
+  countUp($("kpi-open"), openEnded);
 
   let best = null;
   for (const e of list) {
@@ -193,9 +217,11 @@ export function renderList(list, hd, { first = false } = {}) {
       h("span", { class: "ev-top" },
         h("span", { class: "hw" }, highwayOf(e)),
         h("span", { class: "ev-type" }, h("span", { class: `swatch shape-${info.shape}` }), info.label)),
-      h("span", { class: "ev-place" }, placeOf(e)),
+            h("span", { class: "ev-place" }, placeOf(e)),
+      h("span", { class: "ev-cause" }, causeOf(e)),
       h("span", { class: "ev-meta" },
         h("span", { class: `status status-${(e.status || "").toLowerCase()}` }, e.status === "Resolved" ? "Cleared" : e.status),
+        sevBadge(e),
         h("span", { class: "ev-when" }, whenText(e)))
     );
     ul.append(h("li", {}, btn));
@@ -342,6 +368,42 @@ export function renderTimeline(list, hd) {
 }
 
 // ---------- pipeline ----------
+
+// ---------- routes affected ----------
+
+export function renderRoutes(list, hd) {
+  const groups = new Map();
+  for (const e of list) {
+    if (e.status === "Resolved" || !e.route || !(e.route.leg || e.route.journey)) continue;
+    const key = `${e.route.journey || ""}|${e.route.leg || ""}`;
+    const g = groups.get(key) || { journey: e.route.journey, leg: e.route.leg, km: e.route.leg_km, events: [], rank: -1, worst: null };
+    g.events.push(e);
+    const sev = severityOf(e);
+    if (sev.rank > g.rank) { g.rank = sev.rank; g.worst = e; }
+    groups.set(key, g);
+  }
+  const rows = [...groups.values()].sort(
+    (a, b) => b.rank - a.rank || b.events.length - a.events.length || (a.leg || "").localeCompare(b.leg || "")
+  );
+
+  $("routes-count").textContent = `${rows.length} ${plural(rows.length, "route")}`;
+  const box = clear($("routes"));
+  if (!rows.length) {
+    box.append(h("p", { class: "empty-note" }, "No active or scheduled events on a known route in this view."));
+    return;
+  }
+  for (const g of rows) {
+    const n = g.events.length;
+    box.append(
+      h("button", { type: "button", class: "route", onclick: () => hd.onSelect(g.worst.id) },
+        h("span", { class: "hw" }, (g.journey || "Route").replace(/^SH(\d)/i, "SH $1")),
+        h("span", { class: "route-leg" }, g.leg || "Whole route"),
+        h("span", { class: "route-km" }, Number.isFinite(g.km) ? `${g.km.toFixed(1)} km leg` : ""),
+        h("span", { class: "route-n" }, `${n} ${plural(n, "event")}`),
+        sevBadge(g.worst))
+    );
+  }
+}
 
 const HEALTH = {
   ok:      { label: "Healthy",  icon: ICONS.check, cls: "good" },

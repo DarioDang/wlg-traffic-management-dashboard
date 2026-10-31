@@ -53,9 +53,15 @@ const handlers = {
     else state.types.add(key);
     applyFilters();
   },
+  onCategory(cat) {
+    if (state.categories.has(cat)) state.categories.delete(cat);
+    else state.categories.add(cat);
+    applyFilters();
+  },
   onClear() {
     state.status = "all";
     state.types.clear();
+    state.categories.clear();
     applyFilters();
   },
 };
@@ -72,6 +78,7 @@ function renderAll({ fitMap = false } = {}) {
   ui.renderList(list, handlers, { first });
   ui.renderHighways(list, handlers);
   ui.renderTimeline(list, handlers);
+  ui.renderRoutes(list, handlers);
   ui.renderPipeline();
   renderMap(list, { selectedId: state.selectedId, fit: fitMap });
   ui.setSelectedUI(state.selectedId);

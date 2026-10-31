@@ -6,6 +6,7 @@ export const state = {
   health: null,
   status: "all",          // all | active | scheduled | cleared
   types: new Set(),       // empty set = every type
+  categories: new Set(),  // empty set = every category
   selectedId: null,
   hoverId: null,
 };
@@ -23,9 +24,13 @@ export function byStatus() {
 
 // Events passing every filter. All panels render from this one list.
 export function visible() {
-  return byStatus().filter((e) => state.types.size === 0 || state.types.has(typeKey(e.closure_type)));
+    return byStatus().filter(
+    (e) =>
+      (state.types.size === 0 || state.types.has(typeKey(e.closure_type))) &&
+      (state.categories.size === 0 || state.categories.has(e.event_type))
+  );
 }
 
 export function filtersActive() {
-  return state.status !== "all" || state.types.size > 0;
+    return state.status !== "all" || state.types.size > 0 || state.categories.size > 0;
 }

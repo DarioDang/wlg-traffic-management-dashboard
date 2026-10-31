@@ -1,8 +1,9 @@
 import L from "leaflet";
 import { TILE_URL, TILE_ATTRIBUTION, WELLINGTON } from "./config.js";
 import { h, svg } from "./dom.js";
+import { sevBadge } from "./badges.js";
 import {
-  typeInfo, typeKey, typeColor, highwayOf, placeOf, fmtDate, reducedMotion,
+  typeInfo, typeKey, typeColor, highwayOf, placeOf, fmtDate, reducedMotion, timeAgo, causeOf,
 } from "./labels.js";
 
 let map;
@@ -42,7 +43,8 @@ function popupContent(e) {
       h("span", { class: "pop-type" }, info.label),
       h("span", { class: `status status-${(e.status || "").toLowerCase()}` }, e.status === "Resolved" ? "Cleared" : e.status)
     ),
-    h("div", { class: "pop-title" }, h("span", { class: "hw" }, highwayOf(e)), placeOf(e))
+    h("div", { class: "pop-title" }, h("span", { class: "hw" }, highwayOf(e)), placeOf(e)),
+    h("div", { class: "pop-badges" }, sevBadge(e), h("span", { class: "pop-cause" }, causeOf(e)))
   );
   if (e.comments) box.append(h("p", { class: "pop-body" }, e.comments.trim()));
   const meta = h("dl", { class: "pop-meta" });
@@ -50,6 +52,10 @@ function popupContent(e) {
   add("Started", fmtDate(e.start_date));
   add("Ends", fmtDate(e.end_date) || (e.expected_resolution || "").trim());
   add("Impact", e.impact);
+  add("Reported", e.event_created ? `${fmtDate(e.event_created)} (${timeAgo(e.event_created)})` : "");
+  add("Updated", e.event_modified ? `${fmtDate(e.event_modified)} (${timeAgo(e.event_modified)})` : "");
+  if (e.route) add("Route", [e.route.journey, e.route.leg].filter(Boolean).join(": "));
+  if (e.sections && e.sections.length) add("Section", e.sections.join("; "));
   if (e.alternative_route && !/^not applicable$/i.test(e.alternative_route.trim())) {
     add("Detour", e.alternative_route.trim());
   }

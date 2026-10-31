@@ -250,7 +250,7 @@ a { color: inherit; text-underline-offset: 3px; }
 }
 .vms-unit { font: 600 26px/1.05 var(--font-display); color: var(--vms-fg); }
 .vms-sub { color: var(--vms-muted); margin-top: 10px; }
-.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--vms-line); }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--vms-line); }
 .kpi { display: grid; gap: 1px; min-width: 0; }
 .kpi-wide { grid-column: 1 / -1; }
 .kpi-val { font: 600 32px/1 var(--font-display); font-variant-numeric: tabular-nums; }
@@ -430,6 +430,42 @@ a { color: inherit; text-underline-offset: 3px; }
 
 /* ---------- tooltip ---------- */
 
+/* ---------- severity, cause, categories, routes ---------- */
+
+.sev {
+  display: inline-flex; align-items: center; padding: 1px 9px; border-radius: 999px;
+  border: 1px solid var(--line-strong); font-size: 13px; font-weight: 600; line-height: 1.5; white-space: nowrap;
+}
+.sev-closed { background: color-mix(in srgb, var(--crit) 14%, var(--surface)); border-color: color-mix(in srgb, var(--crit) 55%, var(--line)); }
+.sev-delays { background: color-mix(in srgb, var(--warn) 18%, var(--surface)); border-color: color-mix(in srgb, var(--warn) 60%, var(--line)); }
+.sev-caution, .sev-none { color: var(--ink-2); font-weight: 500; }
+
+.ev-cause { color: var(--ink-2); font-size: 14px; }
+.ev-cause:empty { display: none; }
+.pop-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.pop-cause { color: var(--ink-2); }
+.pop-cause:empty { display: none; }
+
+.chips + .chips { padding-left: 14px; border-left: 1px solid var(--line-strong); }
+
+.routes-card { margin-bottom: 16px; }
+.routes { display: grid; gap: 6px; padding: 4px 18px 18px; max-height: 380px; overflow-y: auto; }
+.route {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto; align-items: center; gap: 12px;
+  width: 100%; padding: 9px 12px; text-align: left; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  transition: background 0.15s;
+}
+.route:hover { background: var(--inset); }
+.route-leg { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.route-km, .route-n { color: var(--muted); font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 640px) {
+  .route { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .route-km, .route-n { display: none; }
+  .chips + .chips { padding-left: 0; border-left: 0; }
+}
+
 .tip {
   position: fixed; z-index: 2000; pointer-events: none; max-width: 300px;
   background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong);
@@ -510,4 +546,32 @@ a { color: inherit; text-underline-offset: 3px; }
     animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important; scroll-behavior: auto !important;
   }
+}
+
+
+/* ---------- layout polish: equal-height panels, pipeline card, filter rows ---------- */
+
+#cats.chips { flex-basis: 100%; padding-left: 0; border-left: 0; }
+
+.row2 { align-items: stretch; margin-bottom: 16px; }
+.row2 > .routes-card { margin-bottom: 0; }
+.row2 .routes { max-height: 270px; }
+
+.pipeline { padding: 0 0 20px; margin-bottom: 24px; }
+.pipeline .facts {
+  grid-template-columns: none; grid-template-rows: auto auto;
+  grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+  gap: 2px 24px; padding: 6px 20px 18px; margin-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+.pipeline .facts dd { text-align: left; font: 600 24px/1.15 var(--font-display); }
+.pipeline .pipe { padding: 0 20px; }
+.pipeline .pipe-note { padding: 0 20px; }
+
+@media (max-width: 640px) {
+  .pipeline .facts {
+    grid-template-columns: auto 1fr; grid-template-rows: none; grid-auto-flow: row;
+    gap: 6px 18px;
+  }
+  .pipeline .facts dd { text-align: right; font: 500 15px/1.45 var(--font); }
 }

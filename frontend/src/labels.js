@@ -84,3 +84,24 @@ export function fmtBytes(n) {
 }
 
 export const plural = (n, one, many = `${one}s`) => (n === 1 ? one : many);
+
+
+// ---------- NZTA taxonomy: severity, category and cause ----------
+
+export const CATEGORY_ORDER = ["Road Work", "Scheduled Road Work", "Road Hazard", "Area Warning"];
+
+const IMPACT = {
+  "Road Closed": { rank: 3, label: "Road closed", cls: "closed" },
+  "Delays":      { rank: 2, label: "Delays",      cls: "delays" },
+  "Caution":     { rank: 1, label: "Caution",     cls: "caution" },
+};
+
+export function severityOf(e) {
+  return IMPACT[e.impact] || { rank: 0, label: e.impact || "No impact stated", cls: "none" };
+}
+
+// "Maintenance · Area Warning". A description of just "Other" says nothing, so it is dropped.
+export function causeOf(e) {
+  const d = (e.description || "").trim();
+  return [d && d.toLowerCase() !== "other" ? d : "", e.event_type].filter(Boolean).join(" · ");
+}

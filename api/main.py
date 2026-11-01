@@ -252,6 +252,73 @@ def event_history(event_id: int):
     history.reverse()
     return {"event_id": event_id, "versions": len(rows), "history": history[:50]}
 
+
+# ---------- analytics (dbt marts) ----------
+def _analytics(sql):
+    """Read a dbt mart. Returns [] if analytics isn't built yet, so the API never 500s on it."""
+    try:
+        return query(sql)
+    except Exception:
+        logging.getLogger(__name__).exception("analytics query failed")
+        return []
+
+
+@app.get("/api/trends")
+def trends(days: int = 30):
+    days = max(1, min(int(days), 180))
+
+    def build():
+        rows = _analytics(
+            f"""select day, new_events, cleared_events, events_open, updates
+                from analytics.fct_daily_activity
+                order by day desc limit {days}"""
+        )
+        first = _analytics("select min(day) as d from analytics.fct_daily_activity")
+        baseline = first[0]["d"] if first and first[0]["d"] else None
+        return {"items": list(reversed(rows)), "baseline_day": baseline}
+
+    out = cached(f"trends:{days}", build)
+    return {
+        "days": days,
+        "count": len(out["items"]),
+        "baseline_day": out["baseline_day"],  # that day counts everything already open as "new"
+        "items": out["items"],
+    }
+
+
+@app.get("/api/insights")
+def insights():
+    def build():
+        summary = _analytics(
+            """select count(*) as events_tracked,
+                      count(*) filter (where in_feed) as in_feed,
+                      count(*) filter (where n_end_date_extensions > 0) as with_extensions,
+                      coalesce(round(avg(n_changes), 1), 0) as avg_changes
+               from analytics.dim_events"""
+        )
+        cols = """event_id, event_type, event_description, highway_code, location_area,
+                  n_changes, n_end_date_extensions, total_extension_hours,
+                  round(days_tracked, 1) as days_tracked, in_feed, latest_end_date"""
+        most_extended = _analytics(
+            f"""select {cols} from analytics.dim_events
+                where n_end_date_extensions > 0
+                order by total_extension_hours desc, n_end_date_extensions desc
+                limit 5"""
+        )
+        longest_open = _analytics(
+            f"""select {cols} from analytics.dim_events
+                where in_feed
+                order by days_tracked desc
+                limit 5"""
+        )
+        return {
+            "summary": summary[0] if summary else {},
+            "most_extended": most_extended,
+            "longest_open": longest_open,
+        }
+
+    return cached("insights", build)
+
 @app.get("/api/stats")
 def stats():
     def build():

@@ -16,3 +16,8 @@ __pycache__/
 node_modules/
 dist/
 !frontend/public/index.html
+
+.venv-dbt/
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/

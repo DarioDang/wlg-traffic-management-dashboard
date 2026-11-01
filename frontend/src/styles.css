@@ -666,16 +666,16 @@ button.tr-row:hover { background: rgba(128, 128, 128, .08); }
 
 /* ---------- Background photo ---------- */
 .bg-photo { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: #eceef0; }
-.bg-photo img { position: absolute; top: -40px; left: -40px; width: calc(100% + 80px); height: calc(100% + 80px); object-fit: cover; object-position: center 38%; filter: blur(14px) saturate(1.15) brightness(1.15) contrast(.85); }
-.bg-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(236, 238, 240, .50) 0%, rgba(236, 238, 240, .68) 45%, rgba(236, 238, 240, .84) 100%); }
+.bg-photo img { position: absolute; top: -40px; left: -40px; width: calc(100% + 80px); height: calc(100% + 80px); object-fit: cover; object-position: center 38%; filter: blur(12px) saturate(1.2) brightness(1.1) contrast(.9); }
+.bg-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(236, 238, 240, .60) 0%, rgba(236, 238, 240, .66) 50%, rgba(236, 238, 240, .74) 100%); }
 html[data-theme="dark"] .bg-photo { background: #171c21; }
-html[data-theme="dark"] .bg-photo img { filter: blur(14px) saturate(1.1) brightness(.7); }
-html[data-theme="dark"] .bg-photo::after { background: linear-gradient(180deg, rgba(23, 28, 33, .58) 0%, rgba(23, 28, 33, .76) 45%, rgba(23, 28, 33, .90) 100%); }
+html[data-theme="dark"] .bg-photo img { filter: blur(12px) saturate(1.15) brightness(.85); }
+html[data-theme="dark"] .bg-photo::after { background: linear-gradient(180deg, rgba(23, 28, 33, .60) 0%, rgba(23, 28, 33, .68) 50%, rgba(23, 28, 33, .78) 100%); }
 
 /* The header text sits directly on the photo, so it gets a soft halo. */
 .topbar h1, .topbar p { text-shadow: 0 0 12px rgba(236, 238, 240, .95), 0 0 3px rgba(236, 238, 240, .9); }
 .topbar p { color: var(--ink-2); }
 html[data-theme="dark"] .topbar h1, html[data-theme="dark"] .topbar p { text-shadow: 0 0 12px rgba(23, 28, 33, .95), 0 0 3px rgba(23, 28, 33, .9); }
 
-/* Frosted-glass cards: 90% opaque, so all content stays fully readable. */
-.card { background: color-mix(in srgb, var(--surface) 90%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+/* No panel fill: the data sits straight on the photo. A light blur and a faint outline keep the layout readable. */
+.card { --muted: var(--ink); background: transparent; border-color: rgba(128, 128, 128, .30); box-shadow: none; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }

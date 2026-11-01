@@ -762,3 +762,18 @@ html[data-theme="dark"] .foot p, html[data-theme="dark"] .foot-name, html[data-t
 html[data-theme="dark"] .pipeline .pipe-icon img[src$="pipe-render.png"] {
   filter: invert(1);
 }
+
+/* ===== Full-width layout ===== */
+.wrap {
+  max-width: none;
+  padding-left: clamp(16px, 2.5vw, 48px);
+  padding-right: clamp(16px, 2.5vw, 48px);
+}
+
+/* On very wide screens give the side panel more room so the map doesn't get stretched too thin */
+@media (min-width: 1700px) {
+  .grid { grid-template-columns: minmax(0, 1fr) 460px; }
+}
+
+/* Keep the footer bio readable when the page is wide */
+.foot-bio { max-width: 640px; margin-left: auto; margin-right: auto; }

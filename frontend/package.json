@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "esbuild src/main.js --bundle --outfile=public/app.js --loader:.png=dataurl --loader:.woff2=file --loader:.woff=file --asset-names=fonts/[name]-[hash] --servedir=public --serve=3000 --sourcemap",
-    "build": "esbuild src/main.js --bundle --minify --outfile=dist/app.js --loader:.png=dataurl --loader:.woff2=file --loader:.woff=file --asset-names=fonts/[name]-[hash] && cp public/index.html dist/index.html"
+    "build": "esbuild src/main.js --bundle --minify --outfile=dist/app.js --loader:.png=dataurl --loader:.woff2=file --loader:.woff=file --asset-names=fonts/[name]-[hash] && cp public/index.html dist/index.html && mkdir -p dist/images && cp public/images/* dist/images/"
   },
   "keywords": [],
   "author": "",

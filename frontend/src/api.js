@@ -19,3 +19,7 @@ export const fetchHealth = () => getJSON("/api/health");
 
 export const fetchChanges = (hours) => getJSON(`/api/changes?hours=${hours}`);
 export const fetchHistory = (id) => getJSON(`/api/events/${id}/history`);
+
+export const fetchTrends = (days = 30) => getJSON(`/api/trends?days=${days}`);
+export const fetchInsights = () => getJSON("/api/insights");
+

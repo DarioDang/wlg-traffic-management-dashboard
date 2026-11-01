@@ -13,6 +13,8 @@ import { initMap, renderMap, setSelected, setHover, flyToEvent, refitMap, invali
 import { hideTip } from "./tooltip.js";
 import { $ } from "./dom.js";
 import * as ui from "./ui.js";
+import { fetchTrends, fetchInsights } from "./api.js";
+import { renderTrends, setTrendsData } from "./trends.js";
 
 let first = true;
 let loading = false;
@@ -120,6 +122,16 @@ async function load() {
   }
 }
 
+// ---------- trends (dbt analytics marts) ----------
+async function loadTrends() {
+  const [tr, ins] = await Promise.all([
+    fetchTrends(30).catch(() => null),
+    fetchInsights().catch(() => null),
+  ]);
+  setTrendsData(tr, ins);
+  renderTrends({ onSelect: select });
+}
+
 // ---------- boot ----------
 
 initMap("map", {
@@ -137,6 +149,15 @@ window.addEventListener("resize", () => invalidateMap());
 $("refit").addEventListener("click", () => refitMap());
 
 load();
+
+loadTrends();
+// The analytics tables change once a night, so a slow refresh is plenty.
+setInterval(() => { if (document.visibilityState === "visible") loadTrends(); }, 30 * 60 * 1000);
+let trendsResize;
+window.addEventListener("resize", () => {
+  clearTimeout(trendsResize);
+  trendsResize = setTimeout(() => renderTrends({ onSelect: select }), 150);
+});
 
 // Only poll while the tab is visible, so an idle background tab never wakes the database.
 const stale = () => Date.now() - lastLoad >= REFRESH_MS;

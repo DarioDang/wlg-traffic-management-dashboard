@@ -121,6 +121,40 @@
         </div>
         <div class="activity" id="activity"></div>
       </section>
+            <section class="card trends-card" aria-label="Trends">
+        <div class="card-head">
+          <div>
+            <h2>Trends</h2>
+            <p class="card-sub">Daily activity built overnight from every stored version of every event.</p>
+          </div>
+          <span class="muted" id="trends-count"></span>
+        </div>
+        <div class="tr-stats" id="tr-stats"></div>
+        <div class="tr-charts">
+          <figure class="tr-fig">
+            <figcaption>Events open each day</figcaption>
+            <div class="tr-plot" id="tr-open"></div>
+          </figure>
+          <figure class="tr-fig">
+            <figcaption>New and cleared each day</figcaption>
+            <div class="tr-legend" id="tr-legend"></div>
+            <div class="tr-plot" id="tr-flow"></div>
+          </figure>
+        </div>
+        <p class="tr-note" id="tr-note">Loading trends…</p>
+        <details class="table-view">
+          <summary>View as table</summary>
+          <table>
+            <thead><tr><th scope="col">Day</th><th scope="col">New</th><th scope="col">Cleared</th><th scope="col">Open</th><th scope="col">Updates</th></tr></thead>
+            <tbody id="tr-table-body"></tbody>
+          </table>
+        </details>
+        <div class="tr-ext">
+          <h3>End dates pushed back</h3>
+          <p class="card-sub">Events whose expected end moved later. Hours are added up across every update.</p>
+          <div id="tr-ext"></div>
+        </div>
+      </section>
       <section class="row2">
         <div class="card">
           <div class="card-head">

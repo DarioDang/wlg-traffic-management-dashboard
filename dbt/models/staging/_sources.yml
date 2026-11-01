@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Tables written by the ingest pipeline.
+    schema: public
+    tables:
+      - name: ingest_runs
+        config:
+          loaded_at_field: finished_at
+          freshness:
+            warn_after: {count: 90, period: minute}
+            error_after: {count: 3, period: hour}
+      - name: road_event_versions
+      - name: road_events_current

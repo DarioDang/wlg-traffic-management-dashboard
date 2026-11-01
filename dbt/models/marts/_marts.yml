@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: fct_event_history
+    columns:
+      - name: version_id
+        data_tests: [unique, not_null]
+      - name: event_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_events_current')
+                field: event_id
+
+  - name: dim_events
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+
+  - name: fct_daily_activity
+    columns:
+      - name: day
+        data_tests: [unique, not_null]

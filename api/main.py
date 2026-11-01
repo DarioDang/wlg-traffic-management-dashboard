@@ -350,6 +350,8 @@ def health():
            from ingest_runs order by run_id desc limit 1"""
     )
     last_ok = query("select max(finished_at) as t from ingest_runs where success")[0]["t"]
+    recent = query("select success from ingest_runs order by run_id desc limit 2")
+    two_failed = len(recent) == 2 and all(r["success"] is False for r in recent)
     size = query("select pg_database_size(current_database()) as b")[0]["b"]
 
     age_min = None
@@ -359,7 +361,7 @@ def health():
     if not last:
         status = "no_runs"
     elif last[0]["success"] is False:
-        status = "failing"
+        status = "failing" if two_failed else "stale"
     elif age_min is None or age_min > settings.STALE_AFTER_MINUTES:
         status = "stale"
     else:

@@ -679,3 +679,86 @@ html[data-theme="dark"] .topbar h1, html[data-theme="dark"] .topbar p { text-sha
 
 /* No panel fill: the data sits straight on the photo. A light blur and a faint outline keep the layout readable. */
 .card { --muted: var(--ink); background: transparent; border-color: rgba(128, 128, 128, .30); box-shadow: none; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+
+
+/* ---------- Borderless: sections float directly on the photo ---------- */
+.card { border-color: transparent; }
+.tr-stat { border-color: transparent; }
+
+/* "What changed" rows: no white boxes, just a hairline between rows. */
+.act { background: transparent; border: 0; border-bottom: 1px solid rgba(128, 128, 128, .28); border-radius: 0; box-shadow: none; }
+
+/* Small text sits directly on the photo, so use the full-strength text colour. */
+.tl-place, .tl-tick, .act-line, .act-when { color: var(--ink); }
+
+
+/* ---------- Filter dropdowns (replace the type and category chips) ---------- */
+#chips, #cats { display: none; }
+.dd { position: relative; }
+.dd-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--surface) 72%, transparent); color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.dd-btn:hover { border-color: var(--ink-2); }
+.dd-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.dd-btn.has-value { border-color: var(--ink); }
+.dd-label { color: var(--ink-2); }
+.dd-value { font-weight: 600; }
+.dd-caret { width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform .15s; }
+.dd.is-open .dd-caret { transform: rotate(225deg) translateY(-2px); }
+.dd-panel { position: absolute; top: calc(100% + 6px); left: 0; z-index: 2000; min-width: 240px; max-width: calc(100vw - 40px); padding: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgba(0, 0, 0, .2); }
+.dd-panel[hidden] { display: none; }
+.dd-opt { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 14px; color: var(--ink); }
+.dd-opt:hover { background: rgba(128, 128, 128, .14); }
+.dd-opt input { width: 16px; height: 16px; margin: 0; accent-color: var(--ink); }
+.dd-name { flex: 1; }
+.dd-opt .count { font-variant-numeric: tabular-nums; color: var(--ink-2); font-size: 13px; }
+.dd-opt.is-empty { opacity: .55; }
+
+
+/* ---------- Footer: centred, icons without tiles ---------- */
+.foot { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.foot p { max-width: 70ch; }
+.foot > p { color: var(--ink-2); }
+.foot-me { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; margin-top: 24px; padding-top: 22px; border-top: 1px solid rgba(128, 128, 128, .28); }
+.foot-name { margin: 0; font-size: 20px; font-weight: 600; color: var(--ink); }
+.foot-name span { display: block; margin-top: 2px; font-size: 14px; font-weight: 400; color: var(--ink-2); }
+.foot-bio { margin: 0; max-width: 52ch; font-size: 14px; color: var(--ink); }
+.foot-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin: 6px 0 0; padding: 0; list-style: none; }
+.foot-links a { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; transition: transform .15s; }
+.foot-links a:hover { transform: translateY(-3px) scale(1.06); }
+.foot-links a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.foot-links img { width: 36px; height: 36px; display: block; }
+.foot-copy { margin: 8px 0 0; font-size: 12.5px; color: var(--ink-2); }
+.foot p, .foot-name, .foot-bio, .foot-copy { text-shadow: 0 0 10px rgba(236, 238, 240, .9), 0 0 3px rgba(236, 238, 240, .85); }
+html[data-theme="dark"] .foot p, html[data-theme="dark"] .foot-name, html[data-theme="dark"] .foot-bio, html[data-theme="dark"] .foot-copy { text-shadow: 0 0 10px rgba(23, 28, 33, .9), 0 0 3px rgba(23, 28, 33, .85); }
+
+
+/* ---------- Data pipeline: only the flow ---------- */
+.pipeline .facts, #pipe-status { display: none; }
+.pipeline .card-head { justify-content: center; text-align: center; }
+
+
+/* ---------- Data pipeline: icon images ---------- */
+.pipe-icon img { width: 32px; height: 32px; object-fit: contain; display: block; }
+
+/* Pipeline icons: no tile, uniform box */
+.pipeline .pipe-icon {
+  width: 96px !important;
+  height: 56px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: grid;
+  place-items: center;
+}
+.pipeline .pipe-icon img {
+  width: auto !important;
+  height: auto !important;
+  max-width: 96px;
+  max-height: 48px;
+  object-fit: contain;
+  display: block;
+}
+/* Render's logo is black text, so flip it in dark mode */
+html[data-theme="dark"] .pipeline .pipe-icon img[src$="pipe-render.png"] {
+  filter: invert(1);
+}

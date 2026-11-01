@@ -445,6 +445,10 @@ const HEALTH = {
   no_runs: { label: "No runs yet", icon: ICONS.clock, cls: "warn" },
 };
 
+// Optional icons for the pipeline steps, in the same order as the steps below.
+// Leave a name as "" to show the step number instead.
+const PIPE_ICONS = ["nzta-icon.png", "cronjob-icon.png", "render-icon.png", "neon-icon.png", "pipe-dashboard.png"];
+
 export function renderPipeline() {
   const hl = state.health;
   const st = state.stats || {};
@@ -463,17 +467,22 @@ export function renderPipeline() {
 
   const flow = clear($("pipe-flow"));
   const steps = [
-    ["NZTA Traffic and Travel API", ["Free public API", "State highways only", "Snapshot of current events"]],
-    ["cron-job.org", ["Scheduler", `POST every ${INGEST_EVERY}`, "Free tier"]],
-    ["FastAPI on Render", ["Python backend", "Hashes each event", "Keeps only real changes"]],
-    ["Neon Postgres", ["Cloud database", "Every version of every event", "Free tier"]],
-    ["This dashboard", ["Vanilla JS on Netlify", "Reads the API in your browser", "Refreshes every 5 min"]],
+    ["NZTA Traffic API", ["Free SH public API"]],
+    ["Cron Job Scheduler", [`POST every ${INGEST_EVERY}`]],
+    ["FastAPI Render", ["Backend API Call"]],
+    ["Neon Postgres", ["Postgres Cloud Database"]],
+    ["WLG Dashboard", ["Deployed By Netlify"]],
   ];
   steps.forEach(([title, lines], i) => {
     if (i > 0) flow.append(h("li", { class: "pipe-arrow", "aria-hidden": "true" }));
     flow.append(
       h("li", { class: "pipe-step" },
-        h("span", { class: "pipe-icon" }, String(i + 1)),
+        h("span", { class: "pipe-icon" }, PIPE_ICONS[i]
+          ? h("img", {
+              src: `images/${PIPE_ICONS[i]}`, alt: "", width: "32", height: "32",
+              onerror: (ev) => ev.target.replaceWith(document.createTextNode(String(i + 1))),
+            })
+          : String(i + 1)),
         h("strong", {}, title),
         ...lines.map((l) => h("span", { class: "pipe-line" }, l)))
     );

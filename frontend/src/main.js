@@ -13,6 +13,7 @@ import { initMap, renderMap, setSelected, setHover, flyToEvent, refitMap, invali
 import { hideTip } from "./tooltip.js";
 import { $ } from "./dom.js";
 import * as ui from "./ui.js";
+import { renderDropdowns } from "./dropdowns.js";
 import { fetchTrends, fetchInsights } from "./api.js";
 import { renderTrends, setTrendsData } from "./trends.js";
 
@@ -76,6 +77,7 @@ function renderAll({ fitMap = false } = {}) {
   if (state.selectedId != null && !list.some((e) => e.id === state.selectedId)) state.selectedId = null;
 
   ui.renderFilters(handlers);
+  renderDropdowns(handlers);
   ui.renderHero(list);
   ui.renderList(list, handlers, { first });
   ui.renderHighways(list, handlers);
@@ -149,6 +151,11 @@ window.addEventListener("resize", () => invalidateMap());
 $("refit").addEventListener("click", () => refitMap());
 
 load();
+
+{
+  const year = $("year");
+  if (year) year.textContent = String(new Date().getFullYear());
+}
 
 loadTrends();
 // The analytics tables change once a night, so a slow refresh is plenty.

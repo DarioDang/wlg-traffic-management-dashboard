@@ -63,6 +63,8 @@
       <div class="seg" id="seg-status" role="group" aria-label="Status"></div>
       <div class="chips" id="chips" role="group" aria-label="Event type"></div>
       <div class="chips" id="cats" role="group" aria-label="Category"></div>
+      <div class="dd-host" id="dd-type"></div>
+      <div class="dd-host" id="dd-cat"></div>
     </section>
 
     <section class="grid">
@@ -187,11 +189,10 @@
         </div>
       </section>
 
-      <section class="card pipeline" aria-label="Data pipeline">
+      <section class="card pipeline" aria-label="DATA PIPELINE">
         <div class="card-head">
           <div>
-            <h2>Data pipeline</h2>
-            <p class="card-sub">How this page gets its data.</p>
+            <h2>DATA PIPELINE</h2>
           </div>
           <span class="pill" id="pipe-status"></span>
         </div>
@@ -202,8 +203,17 @@
   </main>
 
   <footer class="wrap foot">
-    <p>Event data comes from the NZ Transport Agency Waka Kotahi Traffic and Travel API. It covers state highways only, so council roads are not shown.</p>
-    <p><a href="https://github.com/DarioDang/wlg-traffic-management-dashboard" rel="noopener">Source code on GitHub</a></p>
+    <div class="foot-me">
+      <p class="foot-name">Dario Dang<span>Data Scientist</span></p>
+      <p class="foot-bio">This project is part of my portfolio, and I'm always happy to talk about data.</p>
+      <ul class="foot-links">
+        <li><a href="mailto:DarioDang9999@gmail.com" aria-label="Email Dario" title="Email"><img src="images/icon-gmail.png" alt="" width="36" height="36"></a></li>
+        <li><a href="https://www.linkedin.com/in/dario-dang-89049020a/" target="_blank" rel="noopener noreferrer" aria-label="Dario on LinkedIn" title="LinkedIn"><img src="images/icon-linkedin.png" alt="" width="36" height="36"></a></li>
+        <li><a href="https://github.com/DarioDang" target="_blank" rel="noopener noreferrer" aria-label="Dario on GitHub" title="GitHub"><img src="images/icon-github.png" alt="" width="36" height="36"></a></li>
+        <li><a href="https://dariodang.github.io/" target="_blank" rel="noopener noreferrer" aria-label="Dario's portfolio website" title="Portfolio"><img src="images/icon-web.png" alt="" width="36" height="36"></a></li>
+      </ul>
+      <p class="foot-copy">&copy; <span id="year">2026</span> Dario Dang. All rights reserved.</p>
+    </div>
   </footer>
 
   <noscript><p class="wrap">This dashboard needs JavaScript to draw the map.</p></noscript>

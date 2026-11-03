@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wellington Roadworks Live</title>
   <meta name="description" content="Live state highway closures and roadworks across the Wellington region, built on the NZTA Traffic and Travel API.">
+  <link rel="icon" type="image/png" href="images/traffic-cone.png">
   <script>
     // Runs before first paint so the page never flashes the wrong theme.
     (function () {
@@ -30,10 +31,7 @@
 
   <header class="wrap topbar">
     <div class="brand">
-      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
-        <rect width="40" height="40" rx="9" fill="currentColor"/>
-        <path d="M8 27l8-8-8-8M17 27l8-8-8-8M26 27l8-8-8-8" fill="none" stroke="var(--hazard)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+        <img class="brand-mark" src="images/traffic-management.png" alt="" aria-hidden="true">
       <div>
         <h1>Wellington Roadworks</h1>
         <p>Closures and works on state highways, updated through the day</p>

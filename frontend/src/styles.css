@@ -777,3 +777,5 @@ html[data-theme="dark"] .pipeline .pipe-icon img[src$="pipe-render.png"] {
 
 /* Keep the footer bio readable when the page is wide */
 .foot-bio { max-width: 640px; margin-left: auto; margin-right: auto; }
+
+img.brand-mark { object-fit: contain; border-radius: 9px; }

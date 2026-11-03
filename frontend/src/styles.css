@@ -779,3 +779,14 @@ html[data-theme="dark"] .pipeline .pipe-icon img[src$="pipe-render.png"] {
 .foot-bio { max-width: 640px; margin-left: auto; margin-right: auto; }
 
 img.brand-mark { object-fit: contain; border-radius: 9px; }
+
+/* ===== Scroll reveal ===== */
+.js-reveal .rv { transition: opacity .55s ease, transform .55s cubic-bezier(.2, .7, .2, 1); }
+.js-reveal .rv:not(.rv-in) { opacity: 0; transform: translateY(18px); }
+.js-reveal .rv.rv-in { opacity: 1; transform: none; }
+/* Second card in a row follows a beat later */
+.js-reveal .row2 > .rv:nth-child(2) { transition-delay: .12s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal .rv { opacity: 1 !important; transform: none !important; transition: none !important; }
+}

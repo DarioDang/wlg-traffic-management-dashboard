@@ -16,6 +16,7 @@ import * as ui from "./ui.js";
 import { renderDropdowns } from "./dropdowns.js";
 import { fetchTrends, fetchInsights } from "./api.js";
 import { renderTrends, setTrendsData } from "./trends.js";
+import "./reveal.js";
 
 let first = true;
 let loading = false;

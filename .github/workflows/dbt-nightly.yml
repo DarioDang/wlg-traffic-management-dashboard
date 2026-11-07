@@ -33,3 +33,11 @@ jobs:
           cd dbt
           dbt source freshness --profiles-dir .
           dbt build --profiles-dir .
+          
+      - name: Purge old event versions
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          eval "$(python dbt/env_from_url.py NEON_DATABASE_URL)"
+          cd dbt
+          dbt run-operation purge_old_versions --profiles-dir . --args '{days: 90, ts_col: observed_at, dry_run: false}'

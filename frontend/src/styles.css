@@ -790,3 +790,89 @@ img.brand-mark { object-fit: contain; border-radius: 9px; }
 @media (prefers-reduced-motion: reduce) {
   .js-reveal .rv { opacity: 1 !important; transform: none !important; transition: none !important; }
 }
+
+/* ===== Mobile app layout ===== */
+.tabbar { display: none; }
+
+@media (max-width: 760px) {
+  body { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+
+  /* Compact, sticky, frosted header */
+  .topbar {
+    position: sticky; top: 0; z-index: 1200;
+    padding-top: 10px; padding-bottom: 10px;
+    background: rgba(236, 238, 240, .78);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  }
+  html[data-theme="dark"] .topbar { background: rgba(23, 28, 33, .78); }
+  .brand p, .live-sub { display: none; }
+  .brand h1 { font-size: 20px; }
+
+  /* Filters: status on its own row, two dropdowns side by side */
+  .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .filters .seg { grid-column: 1 / -1; }
+
+  /* One column, app-style spacing */
+  .grid { display: block !important; height: auto !important; }
+  .side { display: contents; }
+  .vms, .list-card, .map-card, main.wrap > section { margin-bottom: 14px; }
+  .map-card { height: 62dvh; min-height: 380px; border-radius: 20px; overflow: hidden; }
+  #map { height: 100%; min-height: 380px; }
+  .list-card { height: auto !important; max-height: none !important; }
+  .event-list { max-height: none !important; overflow: visible !important; }
+  .leaflet-control-zoom { display: none; }
+
+  /* One view at a time */
+  body[data-tab="map"] :is(.list-card, .timeline-card, .activity-card, .trends-card, .row2, section.pipeline, footer.foot),
+  body[data-tab="events"] :is(.map-card, .vms, .timeline-card, .activity-card, .trends-card, .row2, section.pipeline, footer.foot),
+  body[data-tab="changes"] :is(.filters, .map-card, .vms, .list-card, .timeline-card, .trends-card, .row2, section.pipeline, footer.foot),
+  body[data-tab="insights"] :is(.map-card, .vms, .list-card, .activity-card) { display: none !important; }
+
+  /* Floating glass tab bar */
+  .tabbar {
+    display: flex; gap: 4px; padding: 6px;
+    position: fixed; left: 12px; right: 12px; z-index: 1300;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    border-radius: 22px;
+    background: rgba(255, 255, 255, .72);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
+    box-shadow: 0 8px 28px rgba(15, 23, 32, .18), 0 0 0 1px rgba(15, 23, 32, .06);
+  }
+  html[data-theme="dark"] .tabbar {
+    background: rgba(30, 37, 44, .74);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .08);
+  }
+  .tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 4px 7px; border: 0; border-radius: 16px; background: transparent;
+    color: var(--ink); opacity: .6; cursor: pointer;
+    font-family: inherit; font-size: 11px; font-weight: 600; letter-spacing: .02em;
+    -webkit-tap-highlight-color: transparent;
+    transition: background .25s, opacity .25s, transform .15s;
+  }
+  .tab svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .tab[aria-current="true"] { opacity: 1; background: color-mix(in srgb, var(--hazard) 30%, transparent); }
+  .tab:active { transform: scale(.94); }
+}
+
+@media (max-width: 760px) {
+
+  /* 1. Centred title. Logo on the left, refresh + theme on the right,
+        live pill centred on its own row under the title. */
+  .topbar { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6px; row-gap: 4px; }
+  .brand, .topbar-right { display: contents; }
+  .brand-mark { order: 1; flex: 0 0 34px; width: 34px; height: 34px; margin-right: 52px; }
+  .brand > div { order: 2; flex: 1 1 calc(100% - 190px); min-width: 0; text-align: center; }
+  .brand h1 { margin: 0; text-align: center; }
+  .icon-btn { order: 3; flex: 0 0 40px; width: 40px; height: 40px; }
+  #theme { order: 4; }
+  .live { order: 5; margin: 0 auto; }
+
+  /* 2. No Data Pipeline on mobile (it is already hidden on the other tabs) */
+  body[data-tab="insights"] section.pipeline { display: none !important; }
+
+  /* 3. Footer on every tab. Copyright always shows; name, bio and icons only on Insights. */
+  html body[data-tab] footer.foot { display: block !important; text-align: center; }
+  body:not([data-tab="insights"]) :is(.foot-name, .foot-bio, .foot-links) { display: none; }
+  .foot-copy { margin: 6px 0 0; text-align: center; }
+}

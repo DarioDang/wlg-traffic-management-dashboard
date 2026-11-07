@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wellington-highway-roadworks.netlify.app//sitemap.xml

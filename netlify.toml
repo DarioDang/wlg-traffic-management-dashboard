@@ -3,4 +3,12 @@
     command = "npm run build"
     publish = "dist"
 
-    
+[[redirects]]
+  from = "/robots.txt"
+  to = "/images/robots.txt"
+  status = 200
+
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/images/sitemap.xml"
+  status = 200

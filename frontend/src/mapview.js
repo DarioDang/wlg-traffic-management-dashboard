@@ -13,6 +13,7 @@ let group;
 let rebuilding = false;
 let handlers = { onSelect() {}, onHover() {} };
 const parts = new Map(); // id -> { event, marker, casing, line }
+let flying = false; // true while flyToEvent is animating
 
 // One white glyph per type. Together with the pin shape this is the secondary
 // encoding: type is never carried by colour alone.
@@ -95,6 +96,22 @@ function middle(coords) {
   return coords[Math.floor(coords.length / 2)];
 }
 
+// Pan the map just enough that the whole popup (and the pin under it) is visible.
+function keepPopupInView(popup) {
+  if (!map || !popup || !popup.isOpen() || !popup.getElement()) return;
+  const box = map.getContainer().getBoundingClientRect();
+  const r = popup.getElement().getBoundingClientRect();
+  const pad = 12;
+  const pinRoom = 36; // the pin sits just below the popup
+  let dx = 0;
+  let dy = 0;
+  if (r.top < box.top + pad) dy = r.top - (box.top + pad);
+  else if (r.bottom + pinRoom > box.bottom - pad) dy = r.bottom + pinRoom - (box.bottom - pad);
+  if (r.left < box.left + pad) dx = r.left - (box.left + pad);
+  else if (r.right > box.right - pad) dx = r.right - (box.right - pad);
+  if (dx || dy) map.panBy([dx, dy], { animate: !reducedMotion(), duration: 0.35 });
+}
+
 export function initMap(elementId, h_) {
   handlers = h_;
   map = L.map(elementId, {
@@ -108,6 +125,14 @@ export function initMap(elementId, h_) {
   map.on("popupclose", (ev) => {
     if (rebuilding) return;
     handlers.onSelect(null, { closedId: ev.popup && ev.popup._rwId });
+  });
+  map.on("popupopen", (ev) => {
+    const pop = ev.popup;
+    // Never taller than the map, so long text scrolls inside the popup instead of being cut off.
+    pop.options.maxHeight = Math.max(200, map.getSize().y - 130);
+    pop.update();
+    // Skip while flying: flyToEvent re-checks when it lands.
+    setTimeout(() => { if (!flying) keepPopupInView(pop); }, 60);
   });
   return map;
 }
@@ -147,7 +172,7 @@ export function renderMap(events, { selectedId = null, fit = false } = {}) {
       keyboard: true,
       title: `${highwayOf(e)} ${placeOf(e)}`,
     }).addTo(group);
-    marker.bindPopup(popupContent(e, () => marker.getPopup().update()), { className: "rw-popup", maxWidth: 340, autoPan: false, closeButton: true, offset: [0, -10] });
+    marker.bindPopup(popupContent(e, () => { marker.getPopup().update(); keepPopupInView(marker.getPopup()); }), { className: "rw-popup", maxWidth: 340, autoPan: false, closeButton: true, offset: [0, -10] });
     marker.getPopup()._rwId = e.id;
     marker.on("click", () => handlers.onSelect(e.id));
     marker.on("mouseover", () => handlers.onHover(e.id));
@@ -198,6 +223,11 @@ export function flyToEvent(id) {
   const p = parts.get(id);
   if (!p) return;
   const quick = reducedMotion();
+  const popup = p.marker.getPopup();
+  flying = true;
+  const done = () => { flying = false; keepPopupInView(popup); };
+  map.once("moveend", done);
+  setTimeout(() => { if (flying) done(); }, quick ? 100 : 1600); // safety net if moveend never fires
   if (p.line) {
     map.flyToBounds(p.line.getBounds().pad(0.7), { maxZoom: 15, duration: quick ? 0 : 0.9 });
   } else {

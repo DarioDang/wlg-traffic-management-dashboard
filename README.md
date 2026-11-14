@@ -12,7 +12,7 @@
 ![dbt](https://img.shields.io/badge/dbt-FF694B?logo=dbt&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 
-<img src="docs/screenshot-desktop.png" alt="Wellington Roadworks Live on desktop" width="860">
+<img src="frontend/public/images/og-image.png" alt="Wellington Roadworks Live on desktop" width="860">
 
 </div>
 

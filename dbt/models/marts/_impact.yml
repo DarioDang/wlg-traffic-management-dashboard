@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: fct_closure_traffic_impact
+    description: "Traffic volume near each ended closure versus a same-weekday baseline from nearby TMS lanes."
+    columns:
+      - name: event_id
+        tests: [not_null, unique]

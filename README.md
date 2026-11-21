@@ -137,6 +137,20 @@ Road event data comes from the [NZTA Traffic and Travel API](https://trafficnz.i
 - Shareable links that keep filters and the selected event
 - Alerts for new closures on a chosen highway
 
+## Traffic impact analysis (what the data can and cannot show)
+
+The pipeline also ingests daily traffic counts from NZTA's Traffic Monitoring System (TMS) and
+compares traffic near each ended closure with a same-weekday baseline from the preceding 28 days.
+
+Findings so far:
+- Of 61 closures that ended at least 4 days ago, only 10 lasted a full day or more. The remaining
+  ~84% are short or overnight works, which daily counts cannot resolve (the TMS open data is
+  published as one total per lane per day, with a ~3 day lag).
+- Of those 10, only a handful have a TMS site within 2 km, and the measured change is close to
+  zero. The mart (`fct_closure_traffic_impact`) flags each result with a confidence level and
+  is exposed at `/api/impact`, but is deliberately not shown on the dashboard until the sample is
+  large enough to be meaningful.
+
 ---
 
 <div align="center">

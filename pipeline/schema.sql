@@ -36,3 +36,35 @@ create table if not exists road_event_versions (
 
 create index if not exists idx_versions_event_observed
     on road_event_versions (event_id, observed_at);
+
+create table if not exists tms_sites (
+    site_ref       text primary key,
+    description    text,
+    state_highway  text,
+    lane_type      text,
+    site_type      text,
+    lat            double precision not null,
+    lon            double precision not null,
+    updated_at     timestamptz not null default now()
+);
+
+create table if not exists tms_daily_counts (
+    site_ref       text not null references tms_sites (site_ref),
+    day            date not null,
+    flow_direction smallint not null,
+    class_weight   text not null,
+    traffic_count  numeric(12, 1) not null,
+    loaded_at      timestamptz not null default now(),
+    primary key (site_ref, day, flow_direction, class_weight)
+);
+create index if not exists tms_daily_counts_day_idx on tms_daily_counts (day);
+
+create table if not exists tms_ingest_runs (
+    run_id         bigserial primary key,
+    started_at     timestamptz not null default now(),
+    finished_at    timestamptz,
+    success        boolean,
+    error          text,
+    days_back      integer,
+    rows_upserted  integer
+);

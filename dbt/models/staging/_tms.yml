@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: tms
+    schema: public
+    tables:
+      - name: tms_sites
+      - name: tms_daily_counts
+
+models:
+  - name: stg_tms_daily
+    description: "One row per TMS site per UTC day, all lanes, directions and vehicle classes summed."
+    columns:
+      - name: site_ref
+        tests: [not_null]
+      - name: day
+        tests: [not_null]

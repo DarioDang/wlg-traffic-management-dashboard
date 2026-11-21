@@ -15,6 +15,7 @@ from pipeline.db import get_conn
 from pipeline.geo import wkt_to_latlon
 from pipeline.ingest import run_ingest
 from pipeline.ingest import _geometry_signature
+from pipeline.tms_ingest import run_tms_ingest
 
 log = logging.getLogger("api")
 
@@ -406,4 +407,37 @@ def trigger_ingest(background: BackgroundTasks,
         return {"status": "already_running"}
     background.add_task(_ingest_job)       # work happens after the response is sent
     return {"status": "started"}
+
+# ---------- TMS traffic-count trigger (called by cron-job.org, daily) ----------
+
+_tms_lock = threading.Lock()
+
+
+def _tms_job(days_back: int):
+    try:
+        conn = get_conn()
+        try:
+            result = run_tms_ingest(conn, days_back=days_back)
+        finally:
+            conn.close()
+        log.info("tms ingest finished: %s", result)
+    except Exception:
+        log.exception("tms job crashed")
+    finally:
+        _tms_lock.release()
+
+
+@app.post("/api/trigger/tms", status_code=202)
+def trigger_tms(background: BackgroundTasks, days: int = 14,
+                x_cron_secret: str | None = Header(default=None)):
+    expected = settings.CRON_SECRET
+    if not expected or not x_cron_secret or not hmac.compare_digest(
+        x_cron_secret.encode(), expected.encode()
+    ):
+        raise HTTPException(status_code=401, detail="unauthorized")
+    days = max(1, min(days, 120))          # cron uses the default 14; manual backfills up to 120
+    if not _tms_lock.acquire(blocking=False):
+        return {"status": "already_running"}
+    background.add_task(_tms_job, days)
+    return {"status": "started", "days": days}
 

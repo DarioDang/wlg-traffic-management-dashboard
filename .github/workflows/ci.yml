@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Dummy values so imports and tests never touch a real database.
+      DATABASE_URL: postgresql://user:pass@localhost:5432/test
+      NEON_DATABASE_URL: postgresql://user:pass@localhost:5432/test
+      CRON_SECRET: ci-test-secret
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: App imports cleanly
+        # Catches "No module named ..." before Render does.
+        run: python -c "import api.main"
+
+      - name: Run tests
+        run: python -m pytest -q

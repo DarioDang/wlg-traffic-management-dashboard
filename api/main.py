@@ -441,3 +441,54 @@ def trigger_tms(background: BackgroundTasks, days: int = 14,
     background.add_task(_tms_job, days)
     return {"status": "started", "days": days}
 
+# ---------- TMS counters layer ----------
+
+def _build_traffic_sites():
+    rows = _analytics(
+        """select s.site_ref, s.description, s.state_highway, s.lat, s.lon,
+                  round(avg(v.total) filter (where extract(isodow from v.day) < 6))  as weekday_avg,
+                  round(avg(v.total) filter (where extract(isodow from v.day) >= 6)) as weekend_avg,
+                  round(100 * sum(v.heavy) / nullif(sum(v.total), 0), 1)             as heavy_pct
+           from tms_sites s
+           join (select site_ref, day,
+                        sum(traffic_count) as total,
+                        sum(traffic_count) filter (where class_weight = 'Heavy') as heavy
+                 from tms_daily_counts
+                 where day >= current_date - 28
+                 group by 1, 2) v using (site_ref)
+           group by 1, 2, 3, 4, 5
+           having count(*) >= 14"""
+    )
+    spots = {}
+    for r in rows:
+        key = (round(r["lat"], 3), round(r["lon"], 3))
+        wd = float(r["weekday_avg"] or 0)
+        we = float(r["weekend_avg"] or 0)
+        hp = float(r["heavy_pct"] or 0)
+        s = spots.setdefault(key, {
+            "name": r["description"], "highway": r["state_highway"],
+            "lat": r["lat"], "lon": r["lon"],
+            "weekday_avg": 0, "weekend_avg": 0, "_hw": 0.0, "lanes": 0,
+        })
+        s["weekday_avg"] += wd
+        s["weekend_avg"] += we
+        s["_hw"] += hp * wd
+        s["lanes"] += 1
+    out = []
+    for s in spots.values():
+        hw = s.pop("_hw")
+        s["heavy_pct"] = round(hw / s["weekday_avg"], 1) if s["weekday_avg"] else None
+        s["weekday_avg"] = int(s["weekday_avg"])
+        s["weekend_avg"] = int(s["weekend_avg"])
+        out.append(s)
+    return out
+
+
+@app.get("/api/traffic-sites")
+def traffic_sites():
+    return cached("traffic_sites", lambda: {
+        "generated_at": datetime.now(timezone.utc),
+        "window_days": 28,
+        "items": _build_traffic_sites(),
+    })
+

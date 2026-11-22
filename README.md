@@ -2,6 +2,8 @@
 
 # Wellington Roadworks Live
 
+![CI](https://github.com/DarioDang/wlg-traffic-management-dashboard/actions/workflows/ci.yml/badge.svg)
+
 **Live closures and roadworks on Wellington's state highways, with change tracking and daily trends.**
 
 [**View the live dashboard ↗**](https://YOUR-SITE.netlify.app/)

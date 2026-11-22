@@ -244,3 +244,7 @@ export function refitMap() {
 export function invalidateMap() {
   if (map) map.invalidateSize();
 }
+
+export function getMap() {
+  return map;
+}

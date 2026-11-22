@@ -18,6 +18,7 @@ import { fetchTrends, fetchInsights } from "./api.js";
 import { renderTrends, setTrendsData } from "./trends.js";
 import "./reveal.js";
 import "./mobile.js";
+import { initCounters } from "./counters.js";
 
 let first = true;
 let loading = false;
@@ -142,6 +143,7 @@ initMap("map", {
   onSelect: (id, opts) => select(id, opts),
   onHover: hover,
 });
+initCounters();
 ui.initTheme(() => renderMap(visible(), { selectedId: state.selectedId }));
 
 $("clear-filters").addEventListener("click", handlers.onClear);
